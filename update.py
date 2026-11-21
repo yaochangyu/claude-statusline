@@ -18,7 +18,7 @@ SRC_FILE = HERE / "statusline.py"
 TARGET_DIR = Path.home() / ".claude" / "statusline"
 TARGET_FILE = TARGET_DIR / "statusline.py"
 
-# 遠端來源：發布到 GitHub 後請填入該 statusline.py 的 raw URL
+# 遠端來源：GitHub 上 statusline.py 的 raw URL（單獨執行 update.py 時使用）
 REMOTE_URL = "https://raw.githubusercontent.com/yaochangyu/claude-statusline/main/statusline.py"
 
 
