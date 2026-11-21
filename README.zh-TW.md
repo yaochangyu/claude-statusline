@@ -2,22 +2,29 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-可自訂的 Claude Code 狀態列（Python 腳本），支援 **Windows、WSL、Linux 與 macOS**。顯示目前目錄、Git 分支、模型、context 使用率，以及**當前 session 的 token 用量**。
+可自訂的 Claude Code 狀態列（Python 腳本），支援 **Windows、WSL、Linux 與 macOS**。欄位與版面和 [antigravity-statusline](https://github.com/yaochangyu/antigravity-statusline) 對齊，並加上**當前 session 的 token 用量**。
 
 ## 功能
 
-- **目錄與 Git**：目前目錄名稱、分支，有未提交變更時顯示 `*`。
-- **模型與 Context**：目前使用的模型，以及 context 使用率與進度條（70% 轉黃、90% 轉紅）。
-- **Session Token**：當前 session 的輸入（`↑`）與輸出（`↓`）token，以及合計（`Σ`）。
-- **費用與時長**：session 費用（美元）與 session 持續時間。
+- **分支**：目前 Git 分支、未提交變更標記（`*`），以及 ahead / behind 數量。
+- **模型與額度**：模型名稱，以及 `5h` / `wk` 使用量進度條與重置倒數（Claude Code 提供 `rate_limits` 時顯示）。
+- **費用**：今日與本月 API 費用，透過 `ccusage` 取得並在背景快取。
+- **Session**：session 持續的分鐘數。
+- **Context 與 Token**：context 使用率進度條，以及當前 session 的輸入（`↑`）與輸出（`↓`）token。
+- **活動**：從 transcript 讀取目前使用的 skill、工具呼叫數與步驟數。
 - **跨平台**：只使用 Python 標準函式庫。Windows 會自動啟用 ANSI 色彩並以 UTF-8 輸出。
 
 輸出範例：
 
 ```
-dir:my-project git:main*
-  Model: Opus 5.5 | ctx:[####------]42% | tokens:↑152.3k ↓8.4k (Σ160.8k) | cost:$1.23 | session:12m34s
+branch:main*
+  Model: Opus 5.5 | 5h:[##------]30%(~59m) wk:[#-------]10%(~1d0h) | today:$4.21 | month:$87.50 | session:12m
+  skill:write-style | ctx:[####------]42% | tokens:↑152.3k ↓8.4k | Tools:2 | Steps:3
 ```
+
+> [!NOTE]
+> - `today` / `month` 需要能以 `npx --no-install ccusage` 執行 ccusage，否則顯示 `$0.00`。
+> - `5h` / `wk` 只有在 Claude Code 的 statusline 輸入包含 `rate_limits` 時才會出現。
 
 ## 環境需求
 

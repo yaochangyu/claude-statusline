@@ -2,22 +2,29 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-A customizable Python statusline for Claude Code that works on **Windows, WSL, Linux and macOS**. It shows the current directory, Git branch, model, context usage, and the **token usage of the current session**.
+A customizable Python statusline for Claude Code that works on **Windows, WSL, Linux and macOS**. Its fields and layout mirror [antigravity-statusline](https://github.com/yaochangyu/antigravity-statusline), with the **token usage of the current session** added.
 
 ## Features
 
-- **Directory & Git**: Current directory name, branch, and a dirty marker (`*`) when there are uncommitted changes.
-- **Model & Context**: Active model name and context window usage with a progress bar (yellow at 70%, red at 90%).
-- **Session Tokens**: Input (`↑`) and output (`↓`) tokens of the current session, with the total (`Σ`).
-- **Cost & Duration**: Session cost in USD and session duration.
+- **Branch**: Current Git branch, dirty marker (`*`), and ahead/behind counts.
+- **Model & Quota**: Model name, `5h` and `wk` usage bars with reset countdowns (shown when Claude Code provides `rate_limits`).
+- **Cost**: Today's and this month's API cost, from `ccusage` and cached in the background.
+- **Session**: Session duration in minutes.
+- **Context & Tokens**: Context usage bar, plus the current session's input (`↑`) and output (`↓`) tokens.
+- **Activity**: Active skill, tool call count, and step count from the transcript.
 - **Cross-platform**: Uses only the Python standard library. Enables ANSI colors on Windows and forces UTF-8 output.
 
 Example output:
 
 ```
-dir:my-project git:main*
-  Model: Opus 5.5 | ctx:[####------]42% | tokens:↑152.3k ↓8.4k (Σ160.8k) | cost:$1.23 | session:12m34s
+branch:main*
+  Model: Opus 5.5 | 5h:[##------]30%(~59m) wk:[#-------]10%(~1d0h) | today:$4.21 | month:$87.50 | session:12m
+  skill:write-style | ctx:[####------]42% | tokens:↑152.3k ↓8.4k | Tools:2 | Steps:3
 ```
+
+> [!NOTE]
+> - `today` / `month` require `ccusage` to be runnable with `npx --no-install ccusage`. Without it they show `$0.00`.
+> - `5h` / `wk` appear only when Claude Code includes `rate_limits` in its statusline input.
 
 ## Prerequisites
 

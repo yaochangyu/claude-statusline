@@ -15,7 +15,7 @@ CLAUDE_DIR = Path.home() / ".claude"
 TARGET_DIR = CLAUDE_DIR / "statusline"
 TARGET_FILE = TARGET_DIR / "statusline.py"
 SETTINGS_FILE = CLAUDE_DIR / "settings.json"
-RUNTIME_FILES = ["sessions.json", "last_stdin.json"]
+RUNTIME_FILES = ["sessions.json", "last_stdin.json", "cache.json", "statusline.lock"]
 
 
 def remove_script_and_state():
