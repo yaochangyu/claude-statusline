@@ -111,7 +111,8 @@ Without the installer, add this to `~/.claude/settings.json`:
   "statusLine": {
     "type": "command",
     "command": "python3 \"/absolute/path/to/statusline.py\"",
-    "padding": 0
+    "padding": 0,
+    "refreshInterval": 30
   }
 }
 ```

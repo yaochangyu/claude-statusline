@@ -64,6 +64,7 @@ def main():
         "type": "command",
         "command": build_command(),
         "padding": 0,
+        "refreshInterval": 30,  # 秒；閒置時也讓 today / month 費用保持更新
     }
 
     try:

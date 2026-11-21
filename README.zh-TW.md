@@ -111,7 +111,8 @@ CLAUDE_STATUSLINE_DUMP=1 claude
   "statusLine": {
     "type": "command",
     "command": "python3 \"/absolute/path/to/statusline.py\"",
-    "padding": 0
+    "padding": 0,
+    "refreshInterval": 30
   }
 }
 ```
