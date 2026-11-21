@@ -378,7 +378,7 @@ def build_lines(data):
         spawn_update()
 
     cwd = as_dict(data.get("workspace")).get("current_dir") or data.get("cwd") or os.getcwd()
-    dir_name = os.path.basename(os.path.normpath(cwd)) or cwd
+    dir_name = os.path.normpath(cwd)  # 完整路徑
     git_str = get_git_status_str(cwd)
     line1 = f"{DIM}dir:{RESET}{CYAN}{dir_name}{RESET}" + (f"  {git_str}" if git_str else "")
 

@@ -17,7 +17,7 @@
 輸出範例：
 
 ```
-dir:my-project  branch:main*
+dir:/home/you/projects/my-project  branch:main*
   Model: Opus 5.5 | 5h:[##------]30%(~59m) wk:[#-------]10%(~1d0h) | today:↑8.4M ↓68.3k | month:↑1.2M ↓9.9k | session:12m
   skill:write-style | ctx:[####------]42% | tokens:↑152.3k ↓8.4k | Tools:2 | Artifacts:1 | Steps:3
 ```
