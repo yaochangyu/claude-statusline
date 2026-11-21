@@ -6,7 +6,7 @@ A customizable Python statusline for Claude Code that works on **Windows, WSL, L
 
 ## Features
 
-- **Branch**: Current Git branch, dirty marker (`*`), and ahead/behind counts.
+- **Directory & Branch**: Current directory name, Git branch, dirty marker (`*`), and ahead/behind counts.
 - **Model & Quota**: Model name, `5h` and `wk` usage bars with reset countdowns (shown when Claude Code provides `rate_limits`).
 - **Usage**: Today's and this month's token usage (`↑` input incl. cache, `↓` output), from `ccusage` and cached in the background. Hidden when `ccusage` is unavailable.
 - **Session**: Session duration in minutes.
@@ -17,7 +17,7 @@ A customizable Python statusline for Claude Code that works on **Windows, WSL, L
 Example output:
 
 ```
-branch:main*
+dir:my-project  branch:main*
   Model: Opus 5.5 | 5h:[##------]30%(~59m) wk:[#-------]10%(~1d0h) | today:↑8.4M ↓68.3k | month:↑1.2M ↓9.9k | session:12m
   skill:write-style | ctx:[####------]42% | tokens:↑152.3k ↓8.4k | Tools:2 | Steps:3
 ```

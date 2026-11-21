@@ -378,7 +378,9 @@ def build_lines(data):
         spawn_update()
 
     cwd = as_dict(data.get("workspace")).get("current_dir") or data.get("cwd") or os.getcwd()
-    line1 = get_git_status_str(cwd)
+    dir_name = os.path.basename(os.path.normpath(cwd)) or cwd
+    git_str = get_git_status_str(cwd)
+    line1 = f"{DIM}dir:{RESET}{CYAN}{dir_name}{RESET}" + (f"  {git_str}" if git_str else "")
 
     model = as_dict(data.get("model"))
     model_name = model.get("display_name") or model.get("id") or "Unknown"
@@ -412,7 +414,7 @@ def build_lines(data):
     parts += [f_ctx, f_tokens, f_stats]
     line3 = "  " + sep.join(parts)
 
-    return [line for line in (line1, line2, line3) if line]
+    return [line1, line2, line3]
 
 
 def main():

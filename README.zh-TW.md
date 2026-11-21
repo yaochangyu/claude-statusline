@@ -6,7 +6,7 @@
 
 ## 功能
 
-- **分支**：目前 Git 分支、未提交變更標記（`*`），以及 ahead / behind 數量。
+- **目錄與分支**：目前目錄名稱、Git 分支、未提交變更標記（`*`），以及 ahead / behind 數量。
 - **模型與額度**：模型名稱，以及 `5h` / `wk` 使用量進度條與重置倒數（Claude Code 提供 `rate_limits` 時顯示）。
 - **用量**：今日與本月 token 用量（`↑` 輸入含快取、`↓` 輸出），透過 `ccusage` 取得並在背景快取；`ccusage` 無法執行時隱藏。
 - **Session**：session 持續的分鐘數。
@@ -17,7 +17,7 @@
 輸出範例：
 
 ```
-branch:main*
+dir:my-project  branch:main*
   Model: Opus 5.5 | 5h:[##------]30%(~59m) wk:[#-------]10%(~1d0h) | today:↑8.4M ↓68.3k | month:↑1.2M ↓9.9k | session:12m
   skill:write-style | ctx:[####------]42% | tokens:↑152.3k ↓8.4k | Tools:2 | Steps:3
 ```
