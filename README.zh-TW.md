@@ -11,7 +11,7 @@
 - **用量**：今日與本月 token 用量（`↑` 輸入含快取、`↓` 輸出），透過 `ccusage` 取得並在背景快取；`ccusage` 無法執行時隱藏。
 - **Session**：session 持續的分鐘數。
 - **Context 與 Token**：context 使用率進度條，以及當前 session 的輸入（`↑`）與輸出（`↓`）token。
-- **活動**：從 transcript 讀取目前使用的 skill、工具呼叫數與步驟數。
+- **活動**：從 transcript 讀取目前使用的 skill、工具呼叫數、Artifacts（以 `Write` 工具寫入的不重複檔案數）與步驟數。
 - **跨平台**：只使用 Python 標準函式庫。Windows 會自動啟用 ANSI 色彩並以 UTF-8 輸出。
 
 輸出範例：

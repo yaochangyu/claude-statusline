@@ -11,7 +11,7 @@ A customizable Python statusline for Claude Code that works on **Windows, WSL, L
 - **Usage**: Today's and this month's token usage (`↑` input incl. cache, `↓` output), from `ccusage` and cached in the background. Hidden when `ccusage` is unavailable.
 - **Session**: Session duration in minutes.
 - **Context & Tokens**: Context usage bar, plus the current session's input (`↑`) and output (`↓`) tokens.
-- **Activity**: Active skill, tool call count, and step count from the transcript.
+- **Activity**: Active skill, tool call count, artifact count (unique files written via the `Write` tool), and step count from the transcript.
 - **Cross-platform**: Uses only the Python standard library. Enables ANSI colors on Windows and forces UTF-8 output.
 
 Example output:

@@ -201,15 +201,18 @@ def get_git_status_str(cwd):
 # ---------------------------------------------------------------- transcript
 
 def parse_transcript(transcript_path):
-    """回傳 (tool_calls, steps, active_skill)。
+    """回傳 (tool_calls, steps, artifacts, active_skill)。
+
+    artifacts = 本 session 經由 Write 工具寫入的不重複檔案數（Claude 沒有 artifact 概念，以此代替）。
 
     Claude Code 的 transcript 為 JSONL：每行一則訊息，assistant 訊息的 content 內含 tool_use 區塊。
     """
     tool_calls = 0
     steps = 0
+    written = set()
     active_skill = None
     if not transcript_path or not os.path.exists(transcript_path):
-        return tool_calls, steps, active_skill
+        return tool_calls, steps, 0, active_skill
     try:
         with open(transcript_path, "r", encoding="utf-8", errors="ignore") as f:
             for line in f:
@@ -230,13 +233,17 @@ def parse_transcript(transcript_path):
                     if not isinstance(block, dict) or block.get("type") != "tool_use":
                         continue
                     tool_calls += 1
+                    if block.get("name") == "Write":
+                        target = as_dict(block.get("input")).get("file_path")
+                        if target:
+                            written.add(str(target))
                     if block.get("name") == "Skill":
                         skill = as_dict(block.get("input")).get("skill")
                         if skill:
                             active_skill = str(skill)
     except OSError:
         pass
-    return tool_calls, steps, active_skill
+    return tool_calls, steps, len(written), active_skill
 
 
 def session_token_totals(data):
@@ -393,9 +400,10 @@ def build_lines(data):
     f_ctx = f"{DIM}ctx:{RESET}{make_colored_bar(ctx_frac, 10)}{make_percentage_str(ctx_frac)}"
     tin, tout = session_token_totals(data)
     f_tokens = f"{DIM}tokens:{RESET}{YELLOW}↑{format_tokens(tin)} ↓{format_tokens(tout)}{RESET}"
-    tool_calls, steps, active_skill = parse_transcript(data.get("transcript_path", ""))
+    tool_calls, steps, artifacts, active_skill = parse_transcript(data.get("transcript_path", ""))
     f_stats = (
         f"{DIM}Tools:{RESET}{MAGENTA}{tool_calls}{RESET}"
+        f"{sep}{DIM}Artifacts:{RESET}{MAGENTA}{artifacts}{RESET}"
         f"{sep}{DIM}Steps:{RESET}{MAGENTA}{steps}{RESET}"
     )
     parts = []
