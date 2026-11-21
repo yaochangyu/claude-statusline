@@ -271,27 +271,30 @@ def session_minutes(data):
 # ---------------------------------------------------------------- ccusage 快取（today / month）
 
 def run_ccusage(kind):
+    """回傳 ccusage 的 daily / monthly 列；查詢失敗時回傳 None。"""
     cmd = ["npx", "--no-install", "ccusage", kind, "--json"]
     kwargs = dict(capture_output=True, text=True, timeout=20, shell=(os.name == "nt"))
     if os.name == "nt":
         kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
-    res = subprocess.run(cmd, **kwargs)
-    if res.returncode != 0:
-        return []
     try:
+        res = subprocess.run(cmd, **kwargs)
+        if res.returncode != 0:
+            return None
         payload = json.loads(res.stdout)
-    except ValueError:
-        return []
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
     rows = payload.get(kind, []) if isinstance(payload, dict) else []
     return [r for r in rows if isinstance(r, dict)]
 
 
-def period_cost(rows, period):
-    """加總指定期間的花費；若資料含 agent 欄位，只取 agent == 'all' 的列。"""
-    matched = [r for r in rows if (r.get("date") or r.get("period")) == period]
-    if any("agent" in r for r in matched):
-        matched = [r for r in matched if r.get("agent") == "all"]
-    return sum(as_number(r.get("totalCost")) for r in matched)
+def period_usage(rows, period):
+    """指定期間的 token 用量：輸入 = input + cache 寫入 + cache 讀取，輸出 = output。"""
+    tin = tout = 0
+    for r in rows:
+        if r.get("period") == period and r.get("agent") == "all":
+            tin += int(as_number(r.get("inputTokens"))) + int(as_number(r.get("cacheCreationTokens"))) + int(as_number(r.get("cacheReadTokens")))
+            tout += int(as_number(r.get("outputTokens")))
+    return {"in": tin, "out": tout}
 
 
 def update_cache():
@@ -305,11 +308,11 @@ def update_cache():
         return
     try:
         now = datetime.now()
-        today_cost = period_cost(run_ccusage("daily"), now.strftime("%Y-%m-%d"))
-        month_cost = period_cost(run_ccusage("monthly"), now.strftime("%Y-%m"))
+        daily_rows = run_ccusage("daily")
+        monthly_rows = run_ccusage("monthly")
         write_json_file(CACHE_FILE, {
-            "today_cost": today_cost,
-            "month_cost": month_cost,
+            "today_usage": None if daily_rows is None else period_usage(daily_rows, now.strftime("%Y-%m-%d")),
+            "month_usage": None if monthly_rows is None else period_usage(monthly_rows, now.strftime("%Y-%m")),
             "updated_at": time.time(),
         })
     except (OSError, subprocess.SubprocessError):
@@ -334,6 +337,13 @@ def spawn_update():
 
 
 # ---------------------------------------------------------------- render
+
+def usage_segment(label, usage):
+    """today / month 的 token 用量；查不到資料時回傳空字串（隱藏）。"""
+    if not isinstance(usage, dict):
+        return ""
+    return f"{DIM}{label}:{RESET}{YELLOW}↑{format_tokens(usage.get('in'))} ↓{format_tokens(usage.get('out'))}{RESET}"
+
 
 def quota_segments(data):
     """5h / wk 額度（Claude Code 提供 rate_limits 時才顯示）。"""
@@ -371,8 +381,10 @@ def build_lines(data):
     quota = quota_segments(data)
     if quota:
         segs.append(quota)
-    segs.append(f"{DIM}today:{RESET}{GREEN}${as_number(cache.get('today_cost')):.2f}{RESET}")
-    segs.append(f"{DIM}month:{RESET}{GREEN}${as_number(cache.get('month_cost')):.2f}{RESET}")
+    for label, key in (("today", "today_usage"), ("month", "month_usage")):
+        seg = usage_segment(label, cache.get(key))
+        if seg:
+            segs.append(seg)
     segs.append(f"{DIM}session:{RESET}{GREEN}{session_minutes(data)}m{RESET}")
     line2 = "  " + sep.join(segs)
 

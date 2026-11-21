@@ -8,7 +8,7 @@ A customizable Python statusline for Claude Code that works on **Windows, WSL, L
 
 - **Branch**: Current Git branch, dirty marker (`*`), and ahead/behind counts.
 - **Model & Quota**: Model name, `5h` and `wk` usage bars with reset countdowns (shown when Claude Code provides `rate_limits`).
-- **Cost**: Today's and this month's API cost, from `ccusage` and cached in the background.
+- **Usage**: Today's and this month's token usage (`↑` input incl. cache, `↓` output), from `ccusage` and cached in the background. Hidden when `ccusage` is unavailable.
 - **Session**: Session duration in minutes.
 - **Context & Tokens**: Context usage bar, plus the current session's input (`↑`) and output (`↓`) tokens.
 - **Activity**: Active skill, tool call count, and step count from the transcript.
@@ -18,12 +18,12 @@ Example output:
 
 ```
 branch:main*
-  Model: Opus 5.5 | 5h:[##------]30%(~59m) wk:[#-------]10%(~1d0h) | today:$4.21 | month:$87.50 | session:12m
+  Model: Opus 5.5 | 5h:[##------]30%(~59m) wk:[#-------]10%(~1d0h) | today:↑8.4M ↓68.3k | month:↑1.2M ↓9.9k | session:12m
   skill:write-style | ctx:[####------]42% | tokens:↑152.3k ↓8.4k | Tools:2 | Steps:3
 ```
 
 > [!NOTE]
-> - `today` / `month` require `ccusage` to be runnable with `npx --no-install ccusage`. Without it they show `$0.00`.
+> - `today` / `month` require `ccusage` to be runnable with `npx --no-install ccusage`. Without it they are hidden.
 > - `5h` / `wk` appear only when Claude Code includes `rate_limits` in its statusline input.
 
 ## Prerequisites
