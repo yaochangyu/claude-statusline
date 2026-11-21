@@ -19,7 +19,7 @@ Example output:
 ```
 dir:my-project  branch:main*
   Model: Opus 5.5 | 5h:[##------]30%(~59m) wk:[#-------]10%(~1d0h) | today:↑8.4M ↓68.3k | month:↑1.2M ↓9.9k | session:12m
-  skill:write-style | ctx:[####------]42% | tokens:↑152.3k ↓8.4k | Tools:2 | Steps:3
+  skill:write-style | ctx:[####------]42% | tokens:↑152.3k ↓8.4k | Tools:2 | Artifacts:1 | Steps:3
 ```
 
 > [!NOTE]
@@ -28,7 +28,7 @@ dir:my-project  branch:main*
 
 ## Prerequisites
 
-- **Python 3.8+**
+- **Python 3.8+**: The statusline renderer requires Python 3. You can verify if it's installed by running `python3 --version` (Windows: `python --version`).
   - Windows: install from [python.org](https://www.python.org/downloads/) and make sure `python` is on your `PATH`.
   - WSL / Linux: `sudo apt update && sudo apt install -y python3`
   - macOS: `brew install python`
@@ -36,58 +36,74 @@ dir:my-project  branch:main*
 
 ## Installation
 
-Clone the repository and run the installer:
+### AI Agent Installation Prompt
+
+If you are using an AI coding assistant (like Antigravity or Claude Code), you can copy and paste the following prompt to let the agent do the installation for you:
+
+> Please install the claude-statusline repository for me by running this remote Python installer:
+> `python -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/yaochangyu/claude-statusline/main/install.py').read())"`
+> After running, verify the statusLine settings in my `~/.claude/settings.json` file.
+
+### 1. Remote Installation (Recommended)
+
+You can run the installer directly using Python without cloning the repository:
 
 ```bash
-git clone <repository-url> claude-statusline
-cd claude-statusline
-python install.py      # Windows (or `python3 install.py` on WSL / Linux / macOS)
+python -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/yaochangyu/claude-statusline/main/install.py').read())"
 ```
 
-The installer does two things:
+> [!TIP]
+> - On Linux / macOS / WSL systems where the default command is `python3`, replace the beginning with `python3 -c ...`.
 
-1. Copies `statusline.py` to `~/.claude/statusline/statusline.py`.
-2. Sets the `statusLine` entry in `~/.claude/settings.json` to run that copy. Your other settings are kept, and the previous file is backed up as `settings.json.bak`.
+### 2. Local Installation (For Developers)
 
-Restart Claude Code (or start a new session) to see the statusline.
+If you plan to customize the statusline, clone the repository and run the local installer:
+
+```bash
+git clone https://github.com/yaochangyu/claude-statusline.git
+cd claude-statusline
+python install.py      # or `python3 install.py` on WSL / Linux / macOS
+```
 
 > [!NOTE]
 > - Windows and WSL keep **separate** `~/.claude/settings.json` files. Run the installer in each environment where you use Claude Code.
-> - If you already have a `statusLine` entry, the installer replaces it. The backup keeps the old value.
+> - If you already have a `statusLine` entry, the installer replaces it. The previous file is backed up as `settings.json.bak`.
+> - Restart Claude Code (or start a new session) to see the statusline.
 
-### AI Agent Installation Prompt
+## How It Works & Configuration
 
-If you use an AI coding assistant, you can paste this prompt:
+The installer does two things:
 
-> Please install the claude-statusline repository for me by running `python install.py` in the repository directory, then verify the `statusLine` entry in my `~/.claude/settings.json`.
+1. Copies `statusline.py` to `~/.claude/statusline/statusline.py` (from the local repository, or from GitHub when run remotely).
+2. Sets the `statusLine` entry in `~/.claude/settings.json` to run that copy. Your other settings are kept.
 
-## Update
+The resulting configuration looks like this:
 
-Pull the latest changes and run the updater:
-
-```bash
-git pull origin main
-python update.py       # or `python3 update.py`
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "python3 \"/home/<you>/.claude/statusline/statusline.py\"",
+    "padding": 0,
+    "refreshInterval": 30
+  }
+}
 ```
 
-`update.py` copies the local `statusline.py` to `~/.claude/statusline/`. Claude Code picks up the new version on the next statusline refresh.
+> [!NOTE]
+> - `refreshInterval` re-runs the statusline every 30 seconds, so `today` / `month` stay current while the session is idle. Claude Code also re-runs it on conversation events.
+> - On Windows, `~` is not expanded in `settings.json`. The installer writes the absolute path in quotes (for example `python "C:/Users/<you>/.claude/statusline/statusline.py"`).
 
-If you run `update.py` on its own without the repository, it downloads the latest file from `REMOTE_URL` (set inside `update.py`).
+### Manual Configuration
 
-## Uninstallation
+Without the installer, add the block above to `~/.claude/settings.json`, replacing the path with the absolute path to `statusline.py`.
 
-Run the uninstaller from the repository directory:
+### Token Data Source
 
-```bash
-python uninstall.py    # or `python3 uninstall.py`
-```
+1. `context_window.total_input_tokens` and `context_window.total_output_tokens` (session totals).
+2. If those fields are missing, the sum of `context_window.current_usage` (including cache reads and writes).
 
-This will:
-
-1. Delete `~/.claude/statusline/statusline.py` and its runtime files (`sessions.json`, `last_stdin.json`).
-2. Remove the `statusLine` entry from `~/.claude/settings.json`, but only if it points to this tool. Other statusline settings are left alone. A backup is written first.
-
-## Troubleshooting
+### Troubleshooting
 
 Claude Code sends session data to the statusline as JSON on stdin. To inspect it, run Claude Code with the dump switch:
 
@@ -95,26 +111,54 @@ Claude Code sends session data to the statusline as JSON on stdin. To inspect it
 CLAUDE_STATUSLINE_DUMP=1 claude
 ```
 
-Then open `~/.claude/statusline/last_stdin.json`. Note that the dump is written only when the statusline is rendered.
+Then open `~/.claude/statusline/last_stdin.json`. The dump is written only when the statusline is rendered.
 
-## Where the token numbers come from
+## Update
 
-1. `context_window.total_input_tokens` and `context_window.total_output_tokens` (session totals).
-2. If those fields are missing, the sum of `context_window.current_usage` (including cache reads and writes).
+### 1. Remote Update (Recommended)
 
-## Manual configuration
+Update without cloning the repository. This downloads the latest `statusline.py` from GitHub and overwrites the copy in `~/.claude/statusline/`, while keeping your `settings.json` intact:
 
-Without the installer, add this to `~/.claude/settings.json`:
-
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "python3 \"/absolute/path/to/statusline.py\"",
-    "padding": 0,
-    "refreshInterval": 30
-  }
-}
+```bash
+python -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/yaochangyu/claude-statusline/main/update.py').read())"
 ```
 
-On Windows, use `python` and forward slashes, for example `python "C:/Users/<you>/.claude/statusline/statusline.py"`.
+> [!TIP]
+> - On Linux / macOS / WSL systems where the default command is `python3`, replace the beginning with `python3 -c ...`.
+
+### 2. AI Agent Update Prompt
+
+If you are using an AI coding assistant (like Antigravity or Claude Code), you can copy and paste the following prompt to let the agent update the statusline for you:
+
+> Please update claude-statusline to the latest version by running this remote Python update script:
+> `python -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/yaochangyu/claude-statusline/main/update.py').read())"`
+> Also verify the `statusLine` entry in my `~/.claude/settings.json` file.
+
+### 3. Local Update (For Developers with a cloned repository)
+
+If you previously cloned the repository, pull the latest changes and run the updater:
+
+```bash
+git pull origin main
+python update.py       # or `python3 update.py`
+```
+
+## Uninstallation
+
+### 1. Remote Uninstallation
+
+You can run the uninstaller directly from GitHub:
+
+```bash
+python -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/yaochangyu/claude-statusline/main/uninstall.py').read())"
+```
+
+This deletes `~/.claude/statusline/statusline.py` and its runtime files (`sessions.json`, `last_stdin.json`, `cache.json`, `statusline.lock`), and removes the `statusLine` entry from `~/.claude/settings.json` only if it points to this tool. A backup is written first.
+
+### 2. Local Uninstallation
+
+Run the uninstaller script in the cloned repository directory:
+
+```bash
+python uninstall.py    # or `python3 uninstall.py`
+```

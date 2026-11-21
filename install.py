@@ -11,10 +11,15 @@ import json
 import os
 import shutil
 import sys
+import urllib.request
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
-SRC_FILE = HERE / "statusline.py"
+# 以 exec 執行遠端 install.py 時沒有 __file__，此時改從 REMOTE_URL 下載
+if "__file__" in globals():
+    SRC_FILE = Path(__file__).resolve().parent / "statusline.py"
+else:
+    SRC_FILE = None
+REMOTE_URL = "https://raw.githubusercontent.com/yaochangyu/claude-statusline/main/statusline.py"
 
 CLAUDE_DIR = Path.home() / ".claude"
 TARGET_DIR = CLAUDE_DIR / "statusline"
@@ -31,18 +36,23 @@ def build_command():
 def main():
     print("Installing Claude Statusline...")
 
-    if not SRC_FILE.exists():
-        print(f"Error: {SRC_FILE} not found. Run this script from the cloned repository.")
-        sys.exit(1)
-
-    # 1. 複製腳本
+    # 1. 取得腳本：有本地檔案就複製，否則從 GitHub 下載
     TARGET_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"Copying statusline.py to {TARGET_FILE}...")
-    try:
-        shutil.copy(SRC_FILE, TARGET_FILE)
-    except OSError as e:
-        print(f"Error copying file: {e}")
-        sys.exit(1)
+    if SRC_FILE is not None and SRC_FILE.exists():
+        print(f"Copying statusline.py to {TARGET_FILE}...")
+        try:
+            shutil.copy(SRC_FILE, TARGET_FILE)
+        except OSError as e:
+            print(f"Error copying file: {e}")
+            sys.exit(1)
+    else:
+        print(f"Local statusline.py not found. Downloading from {REMOTE_URL}...")
+        try:
+            with urllib.request.urlopen(REMOTE_URL, timeout=10) as response:
+                TARGET_FILE.write_bytes(response.read())
+        except Exception as e:
+            print(f"Error downloading script: {e}")
+            sys.exit(1)
 
     # 2. 設定 settings.json（保留其他設定）
     print(f"Configuring statusLine in {SETTINGS_FILE}...")
