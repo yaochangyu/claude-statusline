@@ -4,6 +4,8 @@
 
 可自訂的 Claude Code 狀態列（Python 腳本），支援 **Windows、WSL、Linux 與 macOS**。欄位與版面和 [antigravity-statusline](https://github.com/yaochangyu/antigravity-statusline) 對齊，並加上**當前 session 的 token 用量**。
 
+![](demo.png)
+
 ## 功能特色
 
 - **目錄與分支**：目前目錄名稱、Git 分支、未提交變更標記（`*`），以及 ahead / behind 數量。

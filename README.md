@@ -4,6 +4,8 @@
 
 A customizable Python statusline for Claude Code that works on **Windows, WSL, Linux and macOS**. Its fields and layout mirror [antigravity-statusline](https://github.com/yaochangyu/antigravity-statusline), with the **token usage of the current session** added.
 
+![](demo.png)
+
 ## Features
 
 - **Directory & Branch**: Current directory name, Git branch, dirty marker (`*`), and ahead/behind counts.
