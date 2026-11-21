@@ -12,8 +12,11 @@ import sys
 import urllib.request
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
-SRC_FILE = HERE / "statusline.py"
+# 以 exec 執行遠端 update.py 時沒有 __file__，此時沒有本地來源檔
+if "__file__" in globals():
+    SRC_FILE = Path(__file__).resolve().parent / "statusline.py"
+else:
+    SRC_FILE = None
 
 TARGET_DIR = Path.home() / ".claude" / "statusline"
 TARGET_FILE = TARGET_DIR / "statusline.py"
@@ -26,7 +29,7 @@ def main():
     print("Updating Claude Statusline to the latest version...")
     TARGET_DIR.mkdir(parents=True, exist_ok=True)
 
-    if SRC_FILE.exists():
+    if SRC_FILE is not None and SRC_FILE.exists():
         print(f"Copying local statusline.py to {TARGET_FILE}...")
         try:
             shutil.copy(SRC_FILE, TARGET_FILE)
